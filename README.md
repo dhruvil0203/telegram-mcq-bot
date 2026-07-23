@@ -19,8 +19,8 @@ An AI-powered quiz application that automatically generates high-quality Compute
 
 ## 📸 Preview
 
-<p align="center">
-  <img src="./assets/MCQ-Quiz.jpeg" alt="MCQ Challenge App Screenshot" width="350" />
+<p align="left">
+  <img src="./assets/MCQ-Quiz.jpeg" alt="MCQ Challenge App Screenshot" width="350" height="712" />
 </p>
 
 ---
