@@ -1,0 +1,32 @@
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- Dependencies ---
+node_modules/
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+
+# --- OS temporary files ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.sublime-*
+
+# --- Runtime / generated ---
+questions.json
+
+# --- Other ---
+*.save
+*.save.*

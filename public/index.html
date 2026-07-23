@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>5-Minute MCQ Challenge</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #171a23;
+    --accent: #6c5ce7;
+    --accent2: #00d2a0;
+    --danger: #ff5d73;
+    --text: #f2f2f7;
+    --muted: #8b8fa3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top, #1c1f2b, var(--bg));
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+  .wrap { width: 100%; max-width: 640px; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  h1 { font-size: 1.4rem; margin: 0; }
+  .stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border: 1px solid #262a38;
+  }
+  .stat b { color: var(--text); font-size: 1rem; display: block; }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 28px;
+    border: 1px solid #262a38;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .topic-tag {
+    display: inline-block;
+    background: rgba(108,92,231,0.15);
+    color: #a29bfe;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .question { font-size: 1.15rem; line-height: 1.5; margin-bottom: 22px; }
+  .options { display: grid; gap: 12px; }
+  .option {
+    background: #1e2230;
+    border: 1px solid #2c3040;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    transition: all 0.15s ease;
+    font-size: 0.95rem;
+  }
+  .option:hover { border-color: var(--accent); transform: translateX(2px); }
+  .option .letter {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: #2a2f40;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 600; color: var(--muted);
+    flex-shrink: 0;
+  }
+  .option.correct { border-color: var(--accent2); background: rgba(0,210,160,0.12); }
+  .option.correct .letter { background: var(--accent2); color: #06231c; }
+  .option.wrong { border-color: var(--danger); background: rgba(255,93,115,0.12); }
+  .option.wrong .letter { background: var(--danger); color: #2b0a10; }
+  .option.disabled { pointer-events: none; opacity: 0.75; }
+  .feedback {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #1a1e2a;
+    font-size: 0.88rem;
+    color: var(--muted);
+    display: none;
+  }
+  footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .timer { font-variant-numeric: tabular-nums; }
+  .loading { text-align: center; color: var(--muted); padding: 40px 0; }
+  .streak-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #06231c;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧠 MCQ Challenge</h1>
+    <div class="stats">
+      <div class="stat">Correct<b id="statCorrect">0</b></div>
+      <div class="stat">Wrong<b id="statWrong">0</b></div>
+      <div class="stat">Score<b id="statScore">0</b></div>
+      <div class="stat">Streak<b id="statStreak">0</b></div>
+    </div>
+  </header>
+
+  <div class="card" id="card">
+    <div class="loading" id="loading">Loading question…</div>
+  </div>
+
+  <footer>
+    <span>Next question in <span class="timer" id="timer">--:--</span></span>
+    <button id="resetBtn" style="background:none;border:1px solid #2c3040;color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer;">Reset Score</button>
+  </footer>
+</div>
+
+<script>
+const API_QUESTION = "/api/current-question";
+const API_CHECK = "/api/check-answer";
+const POLL_MS = 10 * 60 * 1000; // 10 minutes
+const LS_KEY = "mcq_stats_v1";
+const LS_LAST_ID = "mcq_last_question_id";
+
+let currentQuestion = null;
+let answered = false;
+let secondsLeft = POLL_MS / 1000;
+
+function loadStats() {
+  const raw = localStorage.getItem(LS_KEY);
+  return raw ? JSON.parse(raw) : { correct: 0, wrong: 0, score: 0, streak: 0, bestStreak: 0 };
+}
+function saveStats(stats) {
+  localStorage.setItem(LS_KEY, JSON.stringify(stats));
+}
+function renderStats() {
+  const s = loadStats();
+  document.getElementById("statCorrect").textContent = s.correct;
+  document.getElementById("statWrong").textContent = s.wrong;
+  document.getElementById("statScore").textContent = s.score;
+  document.getElementById("statStreak").textContent = s.streak + (s.streak >= 3 ? " 🔥" : "");
+}
+
+async function fetchQuestion() {
+  document.getElementById("loading").style.display = "block";
+  try {
+    const res = await fetch(API_QUESTION);
+    const data = await res.json();
+    if (!data.question) {
+      document.getElementById("card").innerHTML = '<div class="loading">No question yet, check back shortly…</div>';
+      return;
+    }
+    currentQuestion = data;
+    const lastSeenId = localStorage.getItem(LS_LAST_ID);
+    answered = String(data.id) === String(lastSeenId);
+    renderQuestion();
+    secondsLeft = POLL_MS / 1000;
+  } catch (err) {
+    document.getElementById("card").innerHTML = '<div class="loading">Could not reach server. Retrying…</div>';
+  }
+}
+
+function renderQuestion() {
+  const q = currentQuestion;
+  const letters = ["a", "b", "c", "d"];
+  const card = document.getElementById("card");
+  card.innerHTML = `
+    <div class="topic-tag">${q.topic || "General"}</div>
+    <div class="question">${q.question}</div>
+    <div class="options" id="options">
+      ${letters.map(l => `
+        <div class="option" data-letter="${l}">
+          <div class="letter">${l.toUpperCase()}</div>
+          <div>${q.options[l]}</div>
+        </div>
+      `).join("")}
+    </div>
+    <div class="feedback" id="feedback"></div>
+  `;
+
+  if (answered) {
+    lockOptions();
+    document.getElementById("feedback").style.display = "block";
+    document.getElementById("feedback").textContent = "You already answered this one. New question arrives soon.";
+  } else {
+    document.querySelectorAll(".option").forEach(opt => {
+      opt.addEventListener("click", () => submitAnswer(opt.dataset.letter));
+    });
+  }
+}
+
+function lockOptions() {
+  document.querySelectorAll(".option").forEach(o => o.classList.add("disabled"));
+}
+
+async function submitAnswer(letter) {
+  if (answered) return;
+  answered = true;
+  lockOptions();
+  localStorage.setItem(LS_LAST_ID, currentQuestion.id);
+
+  try {
+    const res = await fetch(API_CHECK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: currentQuestion.id, answer: letter })
+    });
+    const result = await res.json();
+
+    document.querySelectorAll(".option").forEach(opt => {
+      if (opt.dataset.letter === result.correctAnswer) opt.classList.add("correct");
+      else if (opt.dataset.letter === letter && !result.correct) opt.classList.add("wrong");
+    });
+
+    const fb = document.getElementById("feedback");
+    fb.style.display = "block";
+    fb.textContent = (result.correct ? "✅ Correct! " : "❌ Not quite. ") + (result.explanation || "");
+
+    const stats = loadStats();
+    if (result.correct) {
+      stats.correct++;
+      stats.streak++;
+      stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+      stats.score += 10 + Math.min(stats.streak, 5) * 2; // small streak bonus
+    } else {
+      stats.wrong++;
+      stats.streak = 0;
+    }
+    saveStats(stats);
+    renderStats();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function tickTimer() {
+  secondsLeft--;
+  if (secondsLeft <= 0) {
+    fetchQuestion();
+    return;
+  }
+  const m = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
+  const s = Math.floor(secondsLeft % 60).toString().padStart(2, "0");
+  document.getElementById("timer").textContent = `${m}:${s}`;
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (confirm("Reset your score and streak?")) {
+    localStorage.removeItem(LS_KEY);
+    renderStats();
+  }
+});
+
+renderStats();
+fetchQuestion();
+setInterval(tickTimer, 1000);
+// Safety net poll in case the timer drifts
+setInterval(fetchQuestion, POLL_MS);
+</script>
+</body>
+</html>
