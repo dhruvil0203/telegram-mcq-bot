@@ -31,7 +31,7 @@
 - **Dark-Themed UI** — A modern, responsive interface with smooth hover animations and visual feedback.
 - **PM2 Production Config** — Ships with a ready-to-use `ecosystem.config.js` for 24/7 deployment with auto-restart, log rotation, and memory limits.
 
-<p align="center">
+<p align="left">
   <img src="./assets/MCQ-Quiz.jpeg" alt="MCQ Challenge App Screenshot" width="350" height="712" />
 </p>
 
