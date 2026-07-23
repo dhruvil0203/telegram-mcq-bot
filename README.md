@@ -1,17 +1,13 @@
 # 🧠 MCQ Challenge App
 
-<p align="center">
-  <strong>AI-powered MCQ Generator with Automatic Telegram Quiz Polls</strong>
-</p>
+**AI-powered MCQ Generator with Automatic Telegram Quiz Polls**
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/Ollama-000000?logo=ollama&logoColor=white" alt="Ollama" />
-  <img src="https://img.shields.io/badge/Telegram-26A5E4?logo=telegram&logoColor=white" alt="Telegram" />
-  <img src="https://img.shields.io/badge/PM2-2B037A?logo=pm2&logoColor=white" alt="PM2" />
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License" />
-</p>
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?logo=ollama&logoColor=white)
+![Telegram](https://img.shields.io/badge/Telegram-26A5E4?logo=telegram&logoColor=white)
+![PM2](https://img.shields.io/badge/PM2-2B037A?logo=pm2&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 An AI-powered quiz application that automatically generates high-quality Computer Science multiple-choice questions using **Ollama**, serves them through a responsive web interface, and publishes every new question as a native **Telegram Quiz Poll**.
 
