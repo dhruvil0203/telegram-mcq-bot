@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="./assets/MCQ-Quiz.jpeg" alt="MCQ Challenge App Screenshot" width="350" height="712" />
-</p>
-
 <h1 align="center">🧠 MCQ Challenge App</h1>
 
 <p align="center">
